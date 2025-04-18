@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Chào mừng</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Thêm jQuery -->
+</head>
+<body>
+  <h1>🎉 Đăng nhập thành công!</h1>
+  <strong><%= username %></strong>
+
+  <button id="logoutBtn">Đăng xuất</button>
+
+  <a href="/car-management">Quản lý ô tô</a>
+
+  <script>
+    $('#logoutBtn').on('click', function () {
+      $.ajax({
+        type: 'POST',
+        url: '/logout',
+        success: function (response) {
+          if (response.redirect) {
+            window.location.href = response.redirect;
+          }
+        },
+        error: function (err) {
+          console.error('Lỗi khi đăng xuất:', err);
+        }
+      });
+    });
+  </script>
+  
+</body>
+</html>

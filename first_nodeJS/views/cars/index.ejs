@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Car Management</title>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body>
+  <h1>Quản lý ô tô</h1>
+  <button id="addCar" class="btn">Thêm xe</button>
+
+
+  <!-- Modal -->
+  <!-- Modal Bootstrap -->
+  <div class="modal fade" id="carModal" tabindex="-1" aria-labelledby="carModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="carForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="carModalLabel">Thêm xe mới</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Hãng</label>
+              <input type="text" class="form-control" name="nameCar" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Model</label>
+              <input type="text" class="form-control" name="brand" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Năm</label>
+              <input type="number" class="form-control" name="year" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Giá</label>
+              <input type="number" class="form-control" name="price" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-primary">Lưu</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Modal Sửa và Xóa -->
+  <div class="modal fade" id="carModalContext" tabindex="-1" aria-labelledby="carModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="carForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="carModalLabel">Chọn thao tác</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+          </div>
+          <div class="modal-body">
+            <button type="button" class="btn btn-warning" id="editCar">Sửa</button>
+            <button type="button" class="btn btn-danger" id="deleteCar">Xóa</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal sửa  -->
+  <div class="modal fade" id="carModalEdit" tabindex="-1" aria-labelledby="carModalEditLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="carFormEdit">
+          <div class="modal-header">
+            <h5 class="modal-title" id="carModalEditLabel">Sửa thông tin xe</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" name="carId" id="carIdEdit"> <!-- ID xe để sửa -->
+            <div class="mb-3">
+              <label class="form-label">Hãng</label>
+              <input type="text" class="form-control" name="nameCar" id="nameCarEdit" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Model</label>
+              <input type="text" class="form-control" name="brand" id="brandEdit" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Năm</label>
+              <input type="number" class="form-control" name="year" id="yearEdit" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Giá</label>
+              <input type="number" class="form-control" name="price" id="priceEdit" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+            <button type="submit" class="btn btn-primary">Cập nhật</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Overlay nền mờ -->
+  <div id="modalOverlay"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3); z-index:999;">
+  </div>
+
+
+  <table id="car-table" class="display">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Hãng</th>
+        <th>Model</th>
+        <th>Năm</th>
+        <th>Giá</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dữ liệu sẽ được đổ bằng Ajax -->
+    </tbody>
+  </table>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      var table = $('#car-table').DataTable({
+        ajax: '/api/get-cars',
+        columns: [
+          { data: 'id' },
+          { data: 'brand' },
+          { data: 'name' },
+          { data: 'year' },
+          { data: 'price' }
+        ],
+        language: {
+          url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json'
+        }
+      })
+
+      $('#car-table tbody').on('contextmenu', 'tr', function (e) {
+        e.preventDefault();
+
+        var data = table.row(this).data();
+        var carId = data.id;
+
+
+        var carModal = new bootstrap.Modal(document.getElementById('carModalContext'));
+        carModal.show();
+
+        $('#editCar').data('carId', carId);
+        $('#editCar').data('carData', data);
+        $('#deleteCar').data('carId', carId);
+
+
+      });
+
+      $('#editCar').on('click', function () {
+        var carData = $(this).data('carData');
+        $('#carIdEdit').val(carData.id);
+        $('input[name="nameCar"]').val(carData.name);
+        $('input[name="brand"]').val(carData.brand);
+        $('input[name="year"]').val(carData.year);
+        $('input[name="price"]').val(carData.price);
+
+        var editModal = new bootstrap.Modal(document.getElementById('carModalEdit'));
+        editModal.show();
+      });
+
+
+
+
+      $('#deleteCar').on('click', function () {
+        var carId = $(this).data('carId');
+
+        if (confirm('Bạn có chắc chắn muốn xóa xe này?')) {
+
+          $.ajax({
+            url: '/api/delete-car/' + carId,
+            type: 'DELETE',
+            success: function (response) {
+              alert('Xe đã được xóa thành công!');
+              $('#car-table').DataTable().ajax.reload();
+              $('#carModalContext').modal('hide');
+            },
+            error: function (error) {
+              alert('Lỗi khi xóa xe!');
+              console.log(error);
+            }
+          });
+        }
+      });
+
+      const carModal = new bootstrap.Modal(document.getElementById('carModal'));
+
+      $('#addCar').on('click', function () {
+        carModal.show();
+      });
+
+      $('#carForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const data = {
+          nameCar: $('input[name="nameCar"]').val(),
+          brand: $('input[name="brand"]').val(),
+          year: $('input[name="year"]').val(),
+          price: $('input[name="price"]').val()
+        };
+
+
+        $.ajax({
+          url: '/api/insert-car',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify(data),
+          success: function (res) {
+            alert('Thêm xe thành công!');
+            $('#overlay, #carModal').hide();
+            $('#carForm')[0].reset();
+
+            // Nếu dùng DataTable thì reload:
+            if ($('#car-table').hasClass('dataTable')) {
+              $('#car-table').DataTable().ajax.reload();
+            }
+          },
+          error: function (err) {
+            alert('Lỗi khi thêm xe');
+            console.log(err);
+          }
+        });
+      })
+
+    })
+
+  </script>
+</body>
+
+</html>
