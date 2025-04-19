@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const {showLogin, handelLogin, getWelcome , logout } = require('../controllers/item.controller')
 const carController = require('../controllers/carController');
+const { authenticateJWT } = require('../middleware/authMiddleware');
+const { authorizePermission } = require('../middleware/permissionMiddleware');
+const checkPermission = require('../middleware/checkPermission');
 
-//auth
 router.get('/login', showLogin);
 router.post('/login', handelLogin);
 router.get('/welcome', getWelcome);
@@ -18,12 +20,12 @@ router.post('/logout', (req, res) => {
 });
 
 
-router.get('/car-management', carController.index);
-router.get('/api/get-cars', carController.getCar);
-router.post('/api/insert-car', carController.insertCar);
-router.delete('/api/delete-car/:id', carController.deleteCar);
-router.put('/api/update-car/:id', carController.updateCar);
+router.get('/car-management',  carController.index);  
+router.get('/api/get-cars' ,checkPermission('view_car'), carController.getCar); 
+router.post('/api/insert-car', checkPermission('add_car'), carController.insertCar);  
 
+router.put('/api/update-car/:id', checkPermission('edit_car'), carController.updateCar);  
+router.delete('/api/delete-car/:id', checkPermission('delete_car'), carController.deleteCar);
 
 
 module.exports = router;

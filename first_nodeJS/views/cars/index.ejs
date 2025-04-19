@@ -137,6 +137,7 @@
     $(document).ready(function () {
       var table = $('#car-table').DataTable({
         ajax: '/api/get-cars',
+        
         columns: [
           { data: 'id' },
           { data: 'brand' },

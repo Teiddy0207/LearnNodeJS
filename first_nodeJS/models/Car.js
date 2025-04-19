@@ -1,8 +1,6 @@
-// models/Car.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 
-// Tạo mô hình Car
 const Car = sequelize.define('Car', {
   name: {
     type: DataTypes.STRING,
