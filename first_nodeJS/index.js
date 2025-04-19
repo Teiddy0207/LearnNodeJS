@@ -1,7 +1,9 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session'); 
+const dotenv = require('dotenv');
 
+dotenv.config();
 const app = express();
 
 // Middleware
@@ -10,9 +12,10 @@ app.use(express.json());
 app.use(express.static('public'));
 
 app.use(session({
-    secret: 'your_secret_key', 
+    secret: process.env.SESSION_SECRET, 
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: { secure: false } 
   }));
   
   app.set('view engine', 'ejs');
